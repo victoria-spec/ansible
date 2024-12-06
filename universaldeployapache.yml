@@ -1,0 +1,14 @@
+---
+- hosts: linux
+  become: yes
+  become_method: sudo
+
+  vars_files:
+  - vars/linuxsecrets.yml
+
+  #tasks:
+  # - import_tasks: tasks/deployapacheredhat.yml
+  # - import_tasks: tasks/deployapachedebian.yml
+  
+  roles:
+   - webserver

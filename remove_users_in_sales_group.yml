@@ -1,0 +1,33 @@
+---
+- name: Remove users from the 'sales' group if they belong to it
+  hosts: ubuntu
+  become: yes  # Use become to run tasks with elevated privileges
+  vars:
+    # List of users to check and remove if they belong to the 'sales' group
+    users_list:
+      - user1
+      - user2
+      - user3   # Add more users as needed
+
+  tasks:
+    - name: Check group memberships of the users
+      getent:
+        database: group
+        key: "{{ item }}"
+      loop: "{{ users_list }}"
+      register: user_groups
+
+    - name: Remove users who belong to the 'sales' group
+      user:
+        name: "{{ item.item }}"
+        state: absent  # Remove the user from the system
+      #when: "'sales' in item.groups"
+      loop: "{{ user_groups.results }}"
+      register: removal_results
+      changed_when: "'sales' in item.groups"  # Only consider a change if the user belongs to 'sales'
+
+    - name: Output removed users
+      debug:
+        msg: "User {{ item.item }} has been removed."
+      loop: "{{ removal_results.results }}"
+      when: item.changed  # Only output users who were actually removed

@@ -1,0 +1,10 @@
+---
+- name: Deploy vsftpd FTP server to Ubuntu
+  hosts: ubuntu  # Make sure to replace this with your actual host group or IP
+  become: yes  # Run with elevated privileges (sudo)
+ 
+  tasks:
+
+    - import_tasks: tasks/nginx_install.yml
+    - import_tasks: tasks/nginx_start.yml
+

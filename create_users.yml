@@ -1,0 +1,22 @@
+---
+- name: Create users with default password and require password change on first login
+  hosts: ubuntu
+  become: yes  # Use become to run tasks with elevated privileges
+  vars:
+    # Define the list of users with their names
+    users_list:
+      - user1
+      - user2
+      - user3   # Add more users as needed
+
+  tasks:
+    - name: Create users with default password
+      ansible.builtin.user:
+        name: "{{ item }}"
+        password: "{{ 'secret555' | password_hash('sha512') }}"  # Hash the password using SHA-512
+        state: present
+      loop: "{{ users_list }}"
+
+    - name: Ensure users are required to change password on first login
+      ansible.builtin.command: chage -d 0 "{{ item }}"  # Force password change at next login
+      loop: "{{ users_list }}"

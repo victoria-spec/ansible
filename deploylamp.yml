@@ -1,0 +1,91 @@
+---
+# First Play: Deploy LAMP on Ubuntu hosts
+- name: Deploy LAMP on Ubuntu hosts
+  hosts: ubuntu
+  become: yes
+  become_method: sudo
+
+  pre_tasks:
+    - name: Update apt repository cache, if necessary
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+  handlers:
+    - name: restart apache
+      service:
+        name: apache2
+        state: restarted
+
+  tasks:
+    - name: Install LAMP packages
+      apt:
+        state: present
+        name:
+          - apache2
+          - mariadb-server
+          - mariadb-client
+          - php
+
+    - name: Disable the firewall
+      service:
+        name: ufw
+        state: stopped
+
+    - name: Start Apache and MariaDB
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      with_items:
+        - apache2
+        - mariadb
+
+    - name: Enable Apache userdir module for home directory hosting
+      apache2_module:
+        name: userdir
+        state: present
+      notify: restart apache
+
+# Second Play: Create user, set permissions, and upload file on Ubuntu
+- name: Create user, set permissions, and upload file on Ubuntu
+  hosts: ubuntu
+  become: yes
+
+  tasks:
+    - name: Create user "toast"
+      user:
+        name: toast
+        state: present
+        create_home: yes
+
+    - name: Change permissions on /home/toast to 755
+      file:
+        path: /home/toast
+        mode: '0755'
+        recurse: yes
+
+    - name: Create public_html directory under /home/toast
+      file:
+        path: /home/toast/public_html
+        state: directory
+        mode: '0755'
+        owner: toast
+        group: toast
+
+    - name: Upload sample index.html to /home/toast/public_html
+      copy:
+        content: |
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Sample Index Page</title>
+          </head>
+          <body>
+            <h1>Welcome to Toast's Public HTML Page</h1>
+          </body>
+          </html>
+        dest: /home/toast/public_html/index.html
+        mode: '0644'
+        owner: toast
+        group: toast

@@ -1,0 +1,17 @@
+---
+- name: Ignore changes when package is already installed
+  hosts: fedora
+  become: yes
+
+  tasks:
+    - name: Ensure 'vim' package is installed
+      package:
+        name: vim
+        state: present
+      changed_when: false  # Ignore changes if the package is already installed
+
+    - name: Create a file, but ignore changes if file exists
+      file:
+        path: /tmp/example.txt
+        state: touch
+      changed_when: false  # Ignore changes if the file already exists

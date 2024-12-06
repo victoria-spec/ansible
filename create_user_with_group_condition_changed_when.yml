@@ -1,0 +1,27 @@
+---
+- name: Add users and assign to groups
+  hosts: ubuntu
+  become: true
+  vars:
+    users:
+      - user1
+      - user2
+      - user3
+      - user4
+
+  tasks:
+    - name: Add users to the system
+      user:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ users }}"
+      changed_when: true  # Always mark as changed, assuming user creation or modification
+
+    - name: Add user1 to the sales group
+      user:
+        name: "{{ item }}"
+        groups: sales
+        append: yes
+      when: item == 'user1'
+      loop: "{{ users }}"
+      changed_when: "'user1' == item and ansible_facts.user_groups['user1'] is not search('sales')"

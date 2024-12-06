@@ -1,0 +1,26 @@
+---
+- name: Example Playbook using block with macro
+  hosts: fedora
+  become: yes
+
+  tasks:
+    - name: Execute tasks inside a block
+      block:
+
+        - name: Include setup web server tasks (macro)
+          ansible.builtin.include_tasks:
+            file: setup_web_server.yml
+
+        - name: Additional task after web server setup
+          ansible.builtin.debug:
+            msg: "Web server setup completed successfully!"
+
+      rescue:
+        - name: Handle errors if the block fails
+          ansible.builtin.debug:
+            msg: "An error occurred while setting up the web server."
+
+      always:
+        - name: Clean up after block execution
+          ansible.builtin.debug:
+            msg: "This task runs regardless of success or failure."

@@ -1,0 +1,35 @@
+---
+- name: Configure Apache on Ubuntu
+  hosts: ubuntu
+  become: yes
+  tasks:
+
+    - name: Ensure apache2 is installed
+      apt:
+        name: apache2
+        state: present
+        update_cache: yes
+
+    - name: Enable apache2 service
+      systemd:
+        name: apache2
+        enabled: yes
+        state: started
+
+    - name: Create a custom HTML file
+      copy:
+        dest: /var/www/html/index.html
+        content: |
+          <html>
+            <head><title>Welcome to Apache</title></head>
+            <body>
+              <h1>Welcome to Apache Web Server on Ubuntu!</h1>
+              <p>This page was created by an Ansible playbook.</p>
+            </body>
+          </html>
+
+    - name: Ensure apache2 is running
+      service:
+        name: apache2
+        state: started
+        enabled: yes

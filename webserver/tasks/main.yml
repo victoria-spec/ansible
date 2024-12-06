@@ -1,0 +1,26 @@
+---
+- name: Deploy Apache on Debian-based hosts like Ubuntu
+  apt:
+    name: apache2
+    state: present
+  when: ansible_os_family == 'Debian'
+ 
+- name: Start Apache on Debian-based hosts like Ubuntu
+  service:
+    name: apache2
+    state: started
+    enabled: yes
+  when: ansible_os_family == 'Debian'
+
+- name: Deploy Apache on RedHat-based hosts like Fedora
+  dnf:
+    name: httpd
+    state: present
+  when: ansible_os_family == 'RedHat'
+ 
+- name: Start Apache on RedHat-based hosts like Fedora
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+  when: ansible_os_family == 'RedHat'

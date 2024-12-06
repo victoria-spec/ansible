@@ -1,0 +1,19 @@
+---
+- name: Deploy vsftpd FTP server to Ubuntu
+  hosts: ubuntu  # Make sure to replace this with your actual host group or IP
+  become: yes  # Run with elevated privileges (sudo)
+  vars:
+    folder: /srv/ftp/
+    readme_content: "Welcome test to the FTP server. This directory is available for public access. Please ensure you comply with our terms of use."
+
+  tasks:
+
+    - import_tasks: tasks/ftp_install.yml
+    - import_tasks: tasks/ftp_running_enabled.yml
+    - import_tasks: tasks/ftp_user_upload_annonimous_access.yml
+    - import_tasks: tasks/create_folder.yml
+    - import_tasks: tasks/create_readme.yml
+
+  handlers:
+    - import_tasks: tasks/ftp_restarted.yml 
+   

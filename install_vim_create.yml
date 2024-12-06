@@ -1,0 +1,11 @@
+---
+- name: Avoid redundant tasks with 'creates'
+  hosts: unix
+  tasks:
+    - name: Install package only if not already installed
+      package:
+        name: vim
+        state: present
+        # Use 'creates' to ensure the task runs only if 'vim' is not installed
+      args:
+        creates: /usr/bin/vim

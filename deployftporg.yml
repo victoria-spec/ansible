@@ -1,0 +1,49 @@
+---
+- name: Deploy vsftpd FTP server to Ubuntu
+  hosts: ubuntu  # Make sure to replace this with your actual host group or IP
+  become: yes  # Run with elevated privileges (sudo)
+  tasks:
+
+    - name: Install vsftpd
+      ansible.builtin.apt:
+        name: vsftpd
+        state: present
+        update_cache: yes
+
+    - name: Ensure vsftpd is running and enabled
+      service:
+        name: vsftpd
+        state: started
+        enabled: yes
+
+    - name: Configure vsftpd to allow user uploads and anonymous access
+      lineinfile:
+        path: /etc/vsftpd.conf
+        regexp: '^#?(anonymous_enable|local_enable|write_enable)'
+        line: "{{ item }}"
+      loop:
+        - "anonymous_enable=YES"
+        - "local_enable=YES"
+        - "write_enable=YES"
+      notify: Restart vsftpd
+
+    - name: Create the /srv/ftp/ directory
+      file:
+        path: /srv/ftp
+        state: directory
+        mode: '0755'
+
+    - name: Create the README.txt file
+      copy:
+        dest: /srv/ftp/README.txt
+        content: |
+          Welcome to the FTP server.
+          This directory is available for public access.
+          Please ensure you comply with our terms of use.
+        mode: '0444'  # Read-only permissions for everyone
+
+  handlers:
+    - name: Restart vsftpd
+      service:
+        name: vsftpd
+        state: restarted

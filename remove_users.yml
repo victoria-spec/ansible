@@ -1,0 +1,23 @@
+---
+- name: Remove users from the system
+  hosts:  ubuntu
+  become: yes  # Use become to run tasks with elevated privileges
+  vars:
+    # List of users to remove
+    users_list:
+      - user1
+      - user2
+      - user3   # Add more users to remove as needed
+
+  tasks:
+    - name: Remove users from the list
+      user:
+        name: "{{ item }}"
+        state: absent  # Remove the user from the system
+      loop: "{{ users_list }}"
+      register: removal_results
+
+    - name: Output removed users
+      debug:
+        msg: "User {{ item.item }} has been removed."
+      loop: "{{ removal_results.results }}"
